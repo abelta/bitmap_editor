@@ -1,5 +1,5 @@
 
-class bitmap
+class Bitmap
 
   def initialize (height, width)
     puts "bitmap-initialize"
@@ -8,7 +8,7 @@ class bitmap
 
   def print
   end
-  
+
 end
 
 
@@ -17,4 +17,12 @@ def read_input (input)
   puts "input #{input}"
   input = input.split
   command = input.first
+  
+end
+
+
+while true
+  print "> "
+  read_input gets
+  puts
 end
