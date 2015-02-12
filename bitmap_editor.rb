@@ -17,8 +17,9 @@ X - Terminate the session
 class Bitmap
 
   def initialize (height, width, color='O')
-    @height = height.to_i
-    @width = width.to_i
+    raise "Color not recognized." unless is_valid_color?(color)
+    @height = height
+    @width = width
     @matrix = Array.new(@height) {Array.new(@width, color)}
   end
 
@@ -41,26 +42,51 @@ class Bitmap
     end
   end
 
+
+  def fill_point (x, y, color)
+    raise "Color not recognized." unless is_valid_color?(color)
+    @matrix[y][x] = color
+  end
+
+
+  def fill_vertical_segment (x, y1, y2, color)
+    raise "Color not recognized." unless is_valid_color?(color)
+  end
+
+
+  private
+
+  def is_valid_color? (color)
+    /[[:upper:]]/.match(color)
+  end
+
 end
 
 
 
-
+###
+# MAIN
+###
 
 def read_input (input)
   input = input.split
-  command = input.first
+  command = input.shift
+  params = input
   case command
     when 'I'
-      puts @bitmap
-      @bitmap = Bitmap.new input[1], input[2]
-      puts @bitmap
+      @bitmap = Bitmap.new params[0].to_i, params[1].to_i
     when 'C'
+      raise "Bitmap hasn't been initialized yet." unless @bitmap
       @bitmap.clear
     when 'L'
+      raise "Bitmap hasn't been initialized yet." unless @bitmap
+      @bitmap.fill_point params[0].to_i, params[1].to_i, params[2]
     when 'V'
+      raise "Bitmap hasn't been initialized yet." unless @bitmap
     when 'H'
+      raise "Bitmap hasn't been initialized yet." unless @bitmap
     when 'F'
+      raise "Bitmap hasn't been initialized yet." unless @bitmap
     when 'S'
       puts @bitmap
       @bitmap.pretty_print
