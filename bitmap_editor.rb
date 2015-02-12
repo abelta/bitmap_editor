@@ -61,10 +61,30 @@ class Bitmap
     raise "Y2 value is out of range." if y2 > @height or y2 < 0
     raise "Color not recognized." unless is_valid_color?(color)
 
+    y2, y1 = y1, y2 if y1 > y2 # Swap variable order if necessary.
+
     (y1..y2-1).each do |y|
+    #(y1..y2).each do |y|
       fill_point(x, y, color)
     end
   end
+
+
+  def fill_horizontal_segment (x1, x2, y, color)
+    raise "X1 value is out of range." if x1 > @width or x1 < 0
+    raise "X2 value is out of range." if x2 > @width or x2 < 0
+    raise "Y value is out of range." if y > @height or y < 0
+    raise "Color not recognized." unless is_valid_color?(color)
+
+    x2, x1 = x1, x2 if x1 > x2 # Swap variable order if necessary.
+
+    (x1..x2-1).each do |x|
+    #(x1..x2).each do |x|
+      fill_point(x, y, color)
+    end
+  end
+
+
 
 
   private
@@ -82,9 +102,9 @@ end
 ###
 
 def read_input (input)
-  input = input.split
-  command = input.shift
-  params = input
+  params = input.split
+  command = params.shift
+  
   case command
     when 'I'
       @bitmap = Bitmap.new params[0].to_i, params[1].to_i
@@ -99,12 +119,15 @@ def read_input (input)
       @bitmap.fill_vertical_segment params[0].to_i, params[1].to_i, params[2].to_i, params[3]
     when 'H'
       raise "Bitmap hasn't been initialized yet." unless @bitmap
+      @bitmap.fill_horizontal_segment params[0].to_i, params[1].to_i, params[2].to_i, params[3]
     when 'F'
       raise "Bitmap hasn't been initialized yet." unless @bitmap
     when 'S'
       @bitmap.pretty_print
     when 'X'
       exit
+    else
+      raise "Command not recognized."
     end
 end
 
