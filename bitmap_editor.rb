@@ -18,6 +18,7 @@ class Bitmap
 
   def initialize (height, width, color='O')
     raise "Color not recognized." unless is_valid_color?(color)
+    
     @height = height
     @width = width
     @matrix = Array.new(@height) {Array.new(@width, color)}
@@ -25,6 +26,8 @@ class Bitmap
 
 
   def clear (color='O')
+    raise "Color not recognized." unless is_valid_color?(color)
+    
     (0..@height-1).each do |y|
       (0..@width-1).each do |x|
         @matrix[x][y] = color
@@ -44,13 +47,23 @@ class Bitmap
 
 
   def fill_point (x, y, color)
+    raise "X value is out of range." if x > @width or x < 0
+    raise "Y value is out of range." if y > @height or y < 0
     raise "Color not recognized." unless is_valid_color?(color)
+
     @matrix[y][x] = color
   end
 
 
   def fill_vertical_segment (x, y1, y2, color)
+    raise "X value is out of range." if x > @width or x < 0
+    raise "Y1 value is out of range." if y1 > @height or y1 < 0
+    raise "Y2 value is out of range." if y2 > @height or y2 < 0
     raise "Color not recognized." unless is_valid_color?(color)
+
+    (y1..y2-1).each do |y|
+      fill_point(x, y, color)
+    end
   end
 
 
@@ -83,14 +96,13 @@ def read_input (input)
       @bitmap.fill_point params[0].to_i, params[1].to_i, params[2]
     when 'V'
       raise "Bitmap hasn't been initialized yet." unless @bitmap
+      @bitmap.fill_vertical_segment params[0].to_i, params[1].to_i, params[2].to_i, params[3]
     when 'H'
       raise "Bitmap hasn't been initialized yet." unless @bitmap
     when 'F'
       raise "Bitmap hasn't been initialized yet." unless @bitmap
     when 'S'
-      puts @bitmap
       @bitmap.pretty_print
-      puts @bitmap
     when 'X'
       exit
     end
