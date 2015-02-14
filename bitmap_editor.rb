@@ -14,6 +14,43 @@ X - Terminate the session
 =end
 
 
+class Square
+
+  def initialize (x, y, color='O')
+    @x = x
+    @y = y
+    @color = color
+  end
+
+  attr_accessor :x, :y, :color
+
+
+  def fill (color)
+    @color = color
+  end
+
+
+  #def print
+  #  @color
+  #end
+
+=begin
+  def adjacents
+    result = []
+    (-1..1).each do |x_increment|
+      (-1..1).each do |y_increment|
+        
+        next if y+y_increment > @height or y+y_increment < 0 or x+x_increment > @width or x+x_increment < 0
+        
+        result << {x: x+x_increment, y: y+y_increment, color: @matrix[y+y_increment][x+x_increment]}
+      end
+    end
+    result
+  end
+=end
+end
+
+
 class Bitmap
 
   def initialize (height, width, color='O')
@@ -21,7 +58,14 @@ class Bitmap
     
     @height = height
     @width = width
-    @matrix = Array.new(@height) {Array.new(@width, color)}
+    @matrix = []
+    (0..@height-1).each do |y|
+      row = []
+      (0..@width-1).each do |x|
+        row << Square.new(x, y, color)
+      end
+      @matrix << row
+    end
   end
 
 
@@ -30,7 +74,7 @@ class Bitmap
     
     (0..@height-1).each do |y|
       (0..@width-1).each do |x|
-        @matrix[x][y] = color
+        @matrix[x][y].fill color
       end
     end
   end
@@ -39,7 +83,7 @@ class Bitmap
   def pretty_print
     (0..@height-1).each do |y|
       (0..@width-1).each do |x|
-        print @matrix[y][x]
+        print @matrix[y][x].color
       end
       puts
     end
@@ -47,59 +91,68 @@ class Bitmap
 
 
   def fill_point (x, y, color)
-    raise "X value is out of range." if x > @width or x < 0
-    raise "Y value is out of range." if y > @height or y < 0
+    raise "X value is out of range." if x > @width-1 or x < 0
+    raise "Y value is out of range." if y > @height-1 or y < 0
     raise "Color not recognized." unless is_valid_color?(color)
 
-    @matrix[y][x] = color
+    @matrix[y][x].fill color
   end
 
 
   def fill_vertical_segment (x, y1, y2, color)
-    raise "X value is out of range." if x > @width or x < 0
-    raise "Y1 value is out of range." if y1 > @height or y1 < 0
-    raise "Y2 value is out of range." if y2 > @height or y2 < 0
+    raise "X value is out of range." if x > @width-1 or x < 0
+    raise "Y1 value is out of range." if y1 > @height-1 or y1 < 0
+    raise "Y2 value is out of range." if y2 > @height-1 or y2 < 0
     raise "Color not recognized." unless is_valid_color?(color)
 
     y2, y1 = y1, y2 if y1 > y2 # Swap variable order if necessary.
 
-    (y1..y2-1).each do |y|
-    #(y1..y2).each do |y|
+    #(y1..y2-1).each do |y|
+    (y1..y2).each do |y|
       fill_point(x, y, color)
     end
   end
 
 
   def fill_horizontal_segment (x1, x2, y, color)
-    raise "X1 value is out of range." if x1 > @width or x1 < 0
-    raise "X2 value is out of range." if x2 > @width or x2 < 0
-    raise "Y value is out of range." if y > @height or y < 0
+    raise "X1 value is out of range." if x1 > @width-1 or x1 < 0
+    raise "X2 value is out of range." if x2 > @width-1 or x2 < 0
+    raise "Y value is out of range." if y > @height-1 or y < 0
     raise "Color not recognized." unless is_valid_color?(color)
 
     x2, x1 = x1, x2 if x1 > x2 # Swap variable order if necessary.
 
-    (x1..x2-1).each do |x|
-    #(x1..x2).each do |x|
+    #(x1..x2-1).each do |x|
+    (x1..x2).each do |x|
       fill_point(x, y, color)
     end
   end
 
 
   def fill_area (x, y, color)
-    #puts "fill_area"
+    puts "fill_area"
     #puts "x #{x}"
     #puts "y #{y}"
     #puts "color #{color}"
-    raise "X value is out of range." if x > @width or x < 0
-    raise "Y value is out of range." if y > @height or y < 0
+    raise "X value is out of range." if x > @width-1 or x < 0
+    raise "Y value is out of range." if y > @height-1 or y < 0
     raise "Color not recognized." unless is_valid_color?(color)
 
-    original_color = @matrix[y][x]
-    #puts "adjacents"
-    #puts adjacents(x, y).inspect
-    adjacents_with_same_color = adjacents(x, y).select {|square| square[:color] == original_color}
-    @matrix[y][x] = color
-    adjacents_with_same_color.each {|square| fill_area square[:x], square[:y], color}
+    original_color = @matrix[y][x].color
+    fill_point(x, y, color)
+    puts "adjacents"
+    puts adjacents(x, y).count
+    #adjacents_with_same_color = adjacents(x, y).select {|square| square.color == original_color}
+    adjacents_with_same_color = adjacents(x, y).select do |square|
+      puts "square.color #{square.color}"
+      puts "original_color #{original_color}"
+      square.color == original_color
+    end
+    #@matrix[y][x].fill color
+    #fill_point(x, y, color)
+    pretty_print
+    puts "adjacents_with_same_color #{adjacents_with_same_color.count}"
+    adjacents_with_same_color.each {|square| fill_area square.x, square.y, color}
   end
 
 
@@ -113,18 +166,23 @@ class Bitmap
 
 
   def adjacents (x, y)
+    puts "adjacents"
     result = []
     (-1..1).each do |x_increment|
       (-1..1).each do |y_increment|
-        #puts "y+y_increment #{y+y_increment}"
-        #puts "x+x_increment #{x+x_increment}"
-        next if y+y_increment > @height or y+y_increment < 0 or x+x_increment > @width or x+x_increment < 0
-        #puts "Entra"
-        result << {x: x+x_increment, y: y+y_increment, color: @matrix[y+y_increment][x+x_increment]}
+        next if y+y_increment > @height-1 or y+y_increment < 0
+        next if x+x_increment > @width-1 or x+x_increment < 0
+        next if x_increment == 0 and y_increment == 0
+        
+        puts "y+y_increment #{y+y_increment}"
+        puts "x+x_increment #{x+x_increment}"
+
+        result << @matrix[y+y_increment][x+x_increment]
       end
     end
     result
   end
+
 
 end
 
