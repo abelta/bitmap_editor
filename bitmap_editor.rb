@@ -41,9 +41,9 @@ class Bitmap
     @height = height
     @width = width
     @matrix = []
-    (0..@height-1).each do |y|
+    (1..@height).each do |y|
       row = []
-      (0..@width-1).each do |x|
+      (1..@width).each do |x|
         row << Square.new(x, y, color)
       end
       @matrix << row
@@ -73,18 +73,18 @@ class Bitmap
 
 
   def fill_point (x, y, color)
-    raise "X value is out of range." if x > @width-1 or x < 0
-    raise "Y value is out of range." if y > @height-1 or y < 0
+    raise "X value is out of range." if x > @width or x <= 0
+    raise "Y value is out of range." if y > @height or y <= 0
     raise "Color not recognized." unless is_valid_color?(color)
 
-    @matrix[y][x].fill color
+    @matrix[y-1][x-1].fill color
   end
 
 
   def fill_vertical_segment (x, y1, y2, color)
-    raise "X value is out of range." if x > @width-1 or x < 0
-    raise "Y1 value is out of range." if y1 > @height-1 or y1 < 0
-    raise "Y2 value is out of range." if y2 > @height-1 or y2 < 0
+    raise "X value is out of range." if x > @width or x <= 0
+    raise "Y1 value is out of range." if y1 > @height or y1 <= 0
+    raise "Y2 value is out of range." if y2 > @height or y2 <= 0
     raise "Color not recognized." unless is_valid_color?(color)
 
     y2, y1 = y1, y2 if y1 > y2 # Swap variable order if necessary.
@@ -96,9 +96,9 @@ class Bitmap
 
 
   def fill_horizontal_segment (x1, x2, y, color)
-    raise "X1 value is out of range." if x1 > @width-1 or x1 < 0
-    raise "X2 value is out of range." if x2 > @width-1 or x2 < 0
-    raise "Y value is out of range." if y > @height-1 or y < 0
+    raise "X1 value is out of range." if x1 > @width or x1 <= 0
+    raise "X2 value is out of range." if x2 > @width or x2 <= 0
+    raise "Y value is out of range." if y > @height or y <= 0
     raise "Color not recognized." unless is_valid_color?(color)
 
     x2, x1 = x1, x2 if x1 > x2 # Swap variable order if necessary.
@@ -111,11 +111,11 @@ class Bitmap
 
   # Recursive.
   def fill_area (x, y, color, original_color=nil)
-    raise "X value is out of range." if x > @width-1 or x < 0
-    raise "Y value is out of range." if y > @height-1 or y < 0
+    raise "X value is out of range." if x > @width or x <= 0
+    raise "Y value is out of range." if y > @height or y <= 0
     raise "Color not recognized." unless is_valid_color?(color)
 
-    original_color = @matrix[y][x].color unless original_color
+    original_color = @matrix[y-1][x-1].color unless original_color
     
     adjacents_with_same_color = adjacents(x, y).select {|square| square.color == original_color}
     fill_point(x, y, color)
@@ -136,11 +136,11 @@ class Bitmap
     result = []
     (-1..1).each do |x_increment|
       (-1..1).each do |y_increment|
-        next if y+y_increment > @height-1 or y+y_increment < 0
-        next if x+x_increment > @width-1 or x+x_increment < 0
+        next if y+y_increment > @height or y+y_increment <= 0
+        next if x+x_increment > @width or x+x_increment <= 0
         next if x_increment == 0 and y_increment == 0
 
-        result << @matrix[y+y_increment][x+x_increment]
+        result << @matrix[y+y_increment-1][x+x_increment-1]
       end
     end
     result
@@ -188,12 +188,12 @@ end
 
 
 while true
-  begin
+  #begin
     print "> "
     read_input gets
-  rescue => error
-    puts error.message
-  ensure
+  #rescue => error
+  #  puts error.message
+  #ensure
     puts
-  end
+  #end
 end
