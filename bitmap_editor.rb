@@ -22,6 +22,7 @@ class Square
     @color = color
   end
 
+
   attr_accessor :x, :y, :color
 
 
@@ -29,25 +30,6 @@ class Square
     @color = color
   end
 
-
-  #def print
-  #  @color
-  #end
-
-=begin
-  def adjacents
-    result = []
-    (-1..1).each do |x_increment|
-      (-1..1).each do |y_increment|
-        
-        next if y+y_increment > @height or y+y_increment < 0 or x+x_increment > @width or x+x_increment < 0
-        
-        result << {x: x+x_increment, y: y+y_increment, color: @matrix[y+y_increment][x+x_increment]}
-      end
-    end
-    result
-  end
-=end
 end
 
 
@@ -107,7 +89,6 @@ class Bitmap
 
     y2, y1 = y1, y2 if y1 > y2 # Swap variable order if necessary.
 
-    #(y1..y2-1).each do |y|
     (y1..y2).each do |y|
       fill_point(x, y, color)
     end
@@ -122,37 +103,23 @@ class Bitmap
 
     x2, x1 = x1, x2 if x1 > x2 # Swap variable order if necessary.
 
-    #(x1..x2-1).each do |x|
     (x1..x2).each do |x|
       fill_point(x, y, color)
     end
   end
 
 
-  def fill_area (x, y, color)
-    puts "fill_area"
-    #puts "x #{x}"
-    #puts "y #{y}"
-    #puts "color #{color}"
+  # Recursive.
+  def fill_area (x, y, color, original_color=nil)
     raise "X value is out of range." if x > @width-1 or x < 0
     raise "Y value is out of range." if y > @height-1 or y < 0
     raise "Color not recognized." unless is_valid_color?(color)
 
-    original_color = @matrix[y][x].color
-    #fill_point(x, y, color)
-    puts "adjacents"
-    puts adjacents(x, y).count
+    original_color = @matrix[y][x].color unless original_color
+    
     adjacents_with_same_color = adjacents(x, y).select {|square| square.color == original_color}
-    #adjacents_with_same_color = adjacents(x, y).select do |square|
-    #  puts "square.color #{square.color}"
-    #  puts "original_color #{original_color}"
-    #  square.color == original_color
-    #end
-    #@matrix[y][x].fill color
     fill_point(x, y, color)
-    pretty_print
-    puts "adjacents_with_same_color #{adjacents_with_same_color.count}"
-    adjacents_with_same_color.each {|square| fill_area square.x, square.y, color}
+    adjacents_with_same_color.each {|square| fill_area square.x, square.y, color, original_color}
   end
 
 
@@ -166,16 +133,12 @@ class Bitmap
 
 
   def adjacents (x, y)
-    puts "adjacents"
     result = []
     (-1..1).each do |x_increment|
       (-1..1).each do |y_increment|
         next if y+y_increment > @height-1 or y+y_increment < 0
         next if x+x_increment > @width-1 or x+x_increment < 0
         next if x_increment == 0 and y_increment == 0
-        
-        puts "y+y_increment #{y+y_increment}"
-        puts "x+x_increment #{x+x_increment}"
 
         result << @matrix[y+y_increment][x+x_increment]
       end
