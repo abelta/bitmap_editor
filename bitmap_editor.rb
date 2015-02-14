@@ -139,17 +139,17 @@ class Bitmap
     raise "Color not recognized." unless is_valid_color?(color)
 
     original_color = @matrix[y][x].color
-    fill_point(x, y, color)
+    #fill_point(x, y, color)
     puts "adjacents"
     puts adjacents(x, y).count
-    #adjacents_with_same_color = adjacents(x, y).select {|square| square.color == original_color}
-    adjacents_with_same_color = adjacents(x, y).select do |square|
-      puts "square.color #{square.color}"
-      puts "original_color #{original_color}"
-      square.color == original_color
-    end
+    adjacents_with_same_color = adjacents(x, y).select {|square| square.color == original_color}
+    #adjacents_with_same_color = adjacents(x, y).select do |square|
+    #  puts "square.color #{square.color}"
+    #  puts "original_color #{original_color}"
+    #  square.color == original_color
+    #end
     #@matrix[y][x].fill color
-    #fill_point(x, y, color)
+    fill_point(x, y, color)
     pretty_print
     puts "adjacents_with_same_color #{adjacents_with_same_color.count}"
     adjacents_with_same_color.each {|square| fill_area square.x, square.y, color}
