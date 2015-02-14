@@ -85,12 +85,45 @@ class Bitmap
   end
 
 
+  def fill_area (x, y, color)
+    #puts "fill_area"
+    #puts "x #{x}"
+    #puts "y #{y}"
+    #puts "color #{color}"
+    raise "X value is out of range." if x > @width or x < 0
+    raise "Y value is out of range." if y > @height or y < 0
+    raise "Color not recognized." unless is_valid_color?(color)
+
+    original_color = @matrix[y][x]
+    #puts "adjacents"
+    #puts adjacents(x, y).inspect
+    adjacents_with_same_color = adjacents(x, y).select {|square| square[:color] == original_color}
+    @matrix[y][x] = color
+    adjacents_with_same_color.each {|square| fill_area square[:x], square[:y], color}
+  end
+
+
 
 
   private
 
   def is_valid_color? (color)
     /[[:upper:]]/.match(color)
+  end
+
+
+  def adjacents (x, y)
+    result = []
+    (-1..1).each do |x_increment|
+      (-1..1).each do |y_increment|
+        #puts "y+y_increment #{y+y_increment}"
+        #puts "x+x_increment #{x+x_increment}"
+        next if y+y_increment > @height or y+y_increment < 0 or x+x_increment > @width or x+x_increment < 0
+        #puts "Entra"
+        result << {x: x+x_increment, y: y+y_increment, color: @matrix[y+y_increment][x+x_increment]}
+      end
+    end
+    result
   end
 
 end
@@ -122,6 +155,7 @@ def read_input (input)
       @bitmap.fill_horizontal_segment params[0].to_i, params[1].to_i, params[2].to_i, params[3]
     when 'F'
       raise "Bitmap hasn't been initialized yet." unless @bitmap
+      @bitmap.fill_area params[0].to_i, params[1].to_i, params[2]
     when 'S'
       @bitmap.pretty_print
     when 'X'
