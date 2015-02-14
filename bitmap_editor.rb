@@ -188,7 +188,12 @@ end
 
 
 while true
-  print "> "
-  read_input gets
-  puts
+  begin
+    print "> "
+    read_input gets
+  rescue => error
+    puts error.message
+  ensure
+    puts
+  end
 end
