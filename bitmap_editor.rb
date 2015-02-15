@@ -1,21 +1,18 @@
 
 
-=begin
-
-I M N - Create a new M x N image with all pixels coloured white (O).
-C - Clears the table, setting all pixels to white (O).
-L X Y C - Colours the pixel (X,Y) with colour C.
-V X Y1 Y2 C - Draw a vertical segment of colour C in column X between rows Y1 and Y2 (inclusive).
-H X1 X2 Y C - Draw a horizontal segment of colour C in row Y between columns X1 and X2 (inclusive).
-F X Y C - Fill the region R with the colour C. R is defined as: Pixel (X,Y) belongs to R. Any other pixel which is the same colour as (X,Y) and shares a common side with any pixel in R also belongs to this region.
-S - Show the contents of the current image
-X - Terminate the session
-
-=end
-
-
+##
+# Class representing a single square in a Bitmap.
+##
 class Square
 
+  ##
+  # Initializes an instance.
+  # Params:
+  # +x+:: For reference. Represents the x value in the grid.
+  # +y+:: For reference. Represents the y value in the grid.
+  # +color+:: The color of the square, represented by a capital letter.
+  # All of these attributes are accessible.
+  ##
   def initialize (x, y, color='O')
     @x = x
     @y = y
@@ -25,7 +22,11 @@ class Square
 
   attr_accessor :x, :y, :color
 
-
+  ##
+  # Alias to _color_.
+  # Params:
+  # +color+:: The color of the square, represented by a capital letter.
+  ##
   def fill (color)
     @color = color
   end
@@ -33,8 +34,21 @@ class Square
 end
 
 
+
+
+##
+# Class representing a Bitmap as a bidimensional array.
+##
 class Bitmap
 
+  
+  ##
+  # Initializes an instance.
+  # Params:
+  # +height+:: Height of the bitmap in squares.
+  # +width+:: Width of the bitmap in squares.
+  # +color+:: (optional) The color of all the squares in the bitmap. Defaults to "O".
+  ##
   def initialize (height, width, color='O')
     raise "Color not recognized." unless is_valid_color?(color)
     
@@ -51,6 +65,11 @@ class Bitmap
   end
 
 
+  ##
+  # Clears the bitmap, leaving all squares with the same color.
+  # Params:
+  # +color+:: (optional) The new color of all the squares in the bitmap. Defaults to "O".
+  ##
   def clear (color='O')
     raise "Color not recognized." unless is_valid_color?(color)
     
@@ -62,6 +81,9 @@ class Bitmap
   end
 
 
+  ##
+  # Prints a readable representation of the bitmap on the screen.
+  ##
   def pretty_print
     (0..@height-1).each do |y|
       (0..@width-1).each do |x|
@@ -72,6 +94,13 @@ class Bitmap
   end
 
 
+  ##
+  # Assigns a single square with a color.
+  # Params:
+  # +x+:: X coordinate of the square.
+  # +y+:: Y coordinate of the square.
+  # +color+:: The new color of the square.
+  ##
   def fill_point (x, y, color)
     raise "X value is out of range." if x > @width or x <= 0
     raise "Y value is out of range." if y > @height or y <= 0
@@ -81,6 +110,14 @@ class Bitmap
   end
 
 
+  ##
+  # Draws a vertical segment in the bitmap with a color.
+  # Params:
+  # +x+:: X coordinate for the segment in the grid.
+  # +y1+:: Y coordinate for the start of the segment.
+  # +y2+:: Y coordinate for the end of the segment.
+  # +color+:: The color of the segment drawn.
+  ##
   def fill_vertical_segment (x, y1, y2, color)
     raise "X value is out of range." if x > @width or x <= 0
     raise "Y1 value is out of range." if y1 > @height or y1 <= 0
@@ -95,6 +132,14 @@ class Bitmap
   end
 
 
+  ##
+  # Draws a horizontal segment in the bitmap with a color.
+  # Params:
+  # +x1+:: X coordinate for the start of the segment.
+  # +x2+:: X coordinate for the end of the segment.
+  # +y+:: Y coordinate for the segment in the grid.
+  # +color+:: The color of the segment drawn.
+  ##
   def fill_horizontal_segment (x1, x2, y, color)
     raise "X1 value is out of range." if x1 > @width or x1 <= 0
     raise "X2 value is out of range." if x2 > @width or x2 <= 0
@@ -109,7 +154,13 @@ class Bitmap
   end
 
 
-  # Recursive.
+  ##
+  # Recursive method to fill an area in the bitmap defined by squared of the same color.
+  # +x+:: X coordinate for the point where the fill will originate.
+  # +y+:: Y coordinate for the point where the fill will originate.
+  # +color+:: The color of the area drawn.
+  # +original_color+:: *Do not use*. Parameter reserved for the use of recursion.
+  ##
   def fill_area (x, y, color, original_color=nil)
     raise "X value is out of range." if x > @width or x <= 0
     raise "Y value is out of range." if y > @height or y <= 0
@@ -127,11 +178,17 @@ class Bitmap
 
   private
 
+  ##
+  # All capital letter are valid colors.
+  ##
   def is_valid_color? (color)
     /[[:upper:]]/.match(color)
   end
 
 
+  ##
+  # Method returning the adjacent and existent squares starting in one determined by x and y.
+  ##
   def adjacents (x, y)
     result = []
     (-1..1).each do |x_increment|
@@ -151,10 +208,11 @@ end
 
 
 
-###
-# MAIN
-###
 
+
+##
+# Method to read user input and interpret it as a commant with parameters.
+##
 def read_input (input)
   params = input.split
   command = params.shift
@@ -187,13 +245,18 @@ def read_input (input)
 end
 
 
+
+##
+# MAIN
+##
+
 while true
-  #begin
+  begin
     print "> "
     read_input gets
-  #rescue => error
-  #  puts error.message
-  #ensure
+  rescue => error
+    puts error.message
+  ensure
     puts
-  #end
+  end
 end
