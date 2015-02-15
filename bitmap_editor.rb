@@ -156,6 +156,7 @@ class Bitmap
 
   ##
   # Recursive method to fill an area in the bitmap defined by squared of the same color.
+  # Params:
   # +x+:: X coordinate for the point where the fill will originate.
   # +y+:: Y coordinate for the point where the fill will originate.
   # +color+:: The color of the area drawn.
@@ -171,6 +172,33 @@ class Bitmap
     adjacents_with_same_color = adjacents(x, y).select {|square| square.color == original_color}
     fill_point(x, y, color)
     adjacents_with_same_color.each {|square| fill_area square.x, square.y, color, original_color}
+  end
+
+
+  ##
+  # Draws a square defined with two points.
+  # Params:
+  # +x1+:: X coordinate for the starting point.
+  # +y1+:: Y coordinate for the starting point.
+  # +x2+:: X coordinate for the ending point.
+  # +y2+:: Y coordinate for the ending point.
+  # +color+:: The color of the square.
+  ##
+  def fill_square (x1, y1, x2, y2, color)
+    raise "X1 value is out of range." if x1 > @width or x1 <= 0
+    raise "Y1 value is out of range." if y1 > @width or y1 <= 0
+    raise "X2 value is out of range." if x2 > @width or x2 <= 0
+    raise "Y2 value is out of range." if y2 > @width or y2 <= 0
+    raise "Color not recognized." unless is_valid_color?(color)
+
+    #x2, x1 = x1, x2 if x1 > x2 # Swap variable order if necessary.
+    #y2, y1 = y1, y2 if y1 > y2 # Swap variable order if necessary.
+
+    (x1..x2).each do |x|
+      (y1..y2).each do |y|
+        fill_point(x, y, color)
+      end
+    end
   end
 
 
@@ -207,6 +235,20 @@ class Bitmap
 end
 
 
+##
+# Show available commands on screen.
+##
+def show_help
+  puts "Supported commands are:"
+  puts "I M N to create a new M x N image with all pixels coloured white."
+  puts "C to clear the table."
+  puts "L X Y C to colour the pixel in position (X,Y) with colour C."
+  puts "V X Y1 Y2 C to draw a vertical line of colour C in column X between rows Y1 and Y2."
+  puts "H X1 X2 Y C to draw a horizontal segment of colour C in row Y between columns X1 and X2."
+  puts "F X Y C to fill the region R with the colour C."
+  puts "S to show the current image."
+  puts "X to terminate the session."
+end
 
 
 
@@ -235,8 +277,13 @@ def read_input (input)
     when 'F'
       raise "Bitmap hasn't been initialized yet." unless @bitmap
       @bitmap.fill_area params[0].to_i, params[1].to_i, params[2]
+    when 'Q'
+      raise "Bitmap hasn't been initialized yet." unless @bitmap
+      @bitmap.fill_square params[0].to_i, params[1].to_i, params[2].to_i, params[3].to_i, params[4]
     when 'S'
       @bitmap.pretty_print
+    when 'H'
+      show_help
     when 'X'
       exit
     else
@@ -255,7 +302,10 @@ while true
     print "> "
     read_input gets
   rescue => error
+    puts
     puts error.message
+    puts
+    show_help
   ensure
     puts
   end
